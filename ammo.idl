@@ -396,7 +396,7 @@ interface AllHitsRayResultCallback {
 AllHitsRayResultCallback implements RayResultCallback;
 
 [Prefix="btCollisionWorld::"]
-interface LocalConvexResult  {
+interface LocalConvexResult {
   void LocalConvexResult([Const] btCollisionObject hitCollisionObject, LocalShapeInfo localShapeInfo, [Const, Ref] btVector3 hitNormalLocal, [Const, Ref] btVector3 hitPointLocal, float hitFraction);
   [Const] attribute btCollisionObject m_hitCollisionObject;
   attribute LocalShapeInfo m_localShapeInfo;
@@ -441,6 +441,21 @@ interface btManifoldPoint {
   [Const, Ref] btVector3 getPositionWorldOnB();
   void setDistance(float dist);
   float getAppliedImpulse();
+
+  /* // FIXME
+  [Const, Ref] btVector3 getPositionWorldOnA();
+  [Const, Ref] btVector3 getPositionWorldOnB();
+  [Const] double getAppliedImpulse();
+  [Const] double getDistance();
+  [Value] attribute btVector3 m_localPointA;
+  [Value] attribute btVector3 m_localPointB;
+  [Value] attribute btVector3 m_positionWorldOnB;
+  [Value] attribute btVector3 m_positionWorldOnA;
+  [Value] attribute btVector3 m_normalWorldOnB;
+
+  // Contact callback support
+  attribute any m_userPersistentData;
+  */
 };
 
 [Prefix="btCollisionWorld::"]
@@ -898,6 +913,7 @@ interface btTriangleMesh {
   void preallocateIndices(long numverts);
   long findOrAddVertex([Const, Ref] btVector3 vertex, boolean removeDuplicateVertices);
   void addIndex(long index);
+  [Ref] btIndexedMeshArray getIndexedMeshArray();
 };
 btTriangleMesh implements btTriangleIndexVertexArray;
 
@@ -986,6 +1002,7 @@ interface btOverlappingPairCallback {
 
 interface btOverlappingPairCache {
   void setInternalGhostPairCallback(btOverlappingPairCallback ghostPairCallback);
+  void removeOverlappingPairsContainingProxy(btBroadphaseProxy proxy, btDispatcher dispatcher);
   [Const] float getNumOverlappingPairs();
 };
 
@@ -1004,6 +1021,7 @@ interface btDbvt {};
 
 interface btDbvtBroadphase {
   void btDbvtBroadphase();
+  btOverlappingPairCache getOverlappingPairCache();
 };
 
 interface btBroadphaseProxy {
@@ -1736,6 +1754,7 @@ interface btCollisionWorld {
   void convexSweepTest([Const] btConvexShape castShape, [Const, Ref] btTransform from, [Const, Ref] btTransform to, [Ref] ConvexResultCallback resultCallback, float allowedCcdPenetration);
   void contactPairTest(btCollisionObject colObjA, btCollisionObject colObjB, [Ref] ContactResultCallback resultCallback);
   void contactTest(btCollisionObject colObj, [Ref] ContactResultCallback resultCallback);
+  void setForceUpdateAllAabbs(boolean forceUpdateAllAabbs);
   void updateSingleAabb(btCollisionObject colObj);
   void setDebugDrawer(btIDebugDraw debugDrawer);
   btIDebugDraw getDebugDrawer();
@@ -1771,10 +1790,11 @@ interface btDiscreteDynamicsWorld {
 
   long stepSimulation(float timeStep, optional long maxSubSteps, optional float fixedTimeStep);
 
-  // Contact callback support
-  // void setContactAddedCallback(long funcpointer);
-  // void setContactProcessedCallback(long funcpointer);
-  // void setContactDestroyedCallback(long funcpointer);
+	// Contact callback support
+  // TODO: Add to Bullet upstream, only in ammo.js Emscripten fork
+  void setContactAddedCallback(long funcpointer);
+  void setContactProcessedCallback(long funcpointer);
+  void setContactDestroyedCallback(long funcpointer);
 };
 btDiscreteDynamicsWorld implements btDynamicsWorld;
 
@@ -1899,6 +1919,36 @@ interface btRaycastVehicle {
 };
 btRaycastVehicle implements btActionInterface;
 
+interface btKinematicCharacterController {
+//  void btKinematicCharacterController(btPairCachingGhostObject ghostObject, btConvexShape convexShape, float stepHeight, optional long upAxis);
+  void btKinematicCharacterController(btPairCachingGhostObject ghostObject, btConvexShape convexShape, float stepHeight, [Const, Ref] btVector3 upAxis);
+
+//  void setUpAxis (long axis);
+	void setUp([Const, Ref] btVector3 up);
+  void setWalkDirection ([Const,Ref] btVector3 walkDirection);
+  void setVelocityForTimeInterval ([Const,Ref] btVector3 velocity, float timeInterval);
+  //void reset ();
+  void warp ([Const, Ref]btVector3 origin);
+  void preStep (btCollisionWorld collisionWorld);
+  void playerStep (btCollisionWorld collisionWorld, float dt);
+  void setFallSpeed (float fallSpeed);
+  void setJumpSpeed (float jumpSpeed);
+  void setMaxJumpHeight (float maxJumpHeight);
+  boolean canJump ();
+  void jump ();
+//  void setGravity (float gravity);
+	void setGravity([Const, Ref] btVector3 gravity);
+//  float getGravity ();
+	[Value] btVector3 getGravity();
+  void setMaxSlope (float slopeRadians);
+  float getMaxSlope ();
+  btPairCachingGhostObject getGhostObject ();
+  void setUseGhostSweepTest (boolean useGhostObjectSweepTest);
+  boolean onGround ();
+  void setUpInterpolate (boolean value);
+};
+btKinematicCharacterController implements btActionInterface;
+
 interface btGhostObject {
   void btGhostObject();
   long getNumOverlappingObjects();
@@ -1910,6 +1960,87 @@ interface btPairCachingGhostObject {
   void btPairCachingGhostObject();
 };
 btPairCachingGhostObject implements btGhostObject;
+
+interface btGhostPairCallback {
+  void btGhostPairCallback();
+};
+
+// extras
+
+// interface Vec3Long {
+//   void Vec3Long(long x, long y, long z);
+//   long X();
+//   long Y();
+//   long Z();
+// };
+
+// interface Vec3Real {
+//   void Vec3Real(double x, double y, double z);
+//   double X();
+//   double Y();
+//   double Z();
+// };
+
+// [Prefix="HACD::"]
+// interface HACD {
+//   void HACD();
+
+//   void SetCompacityWeight(double alpha);
+//   void SetVolumeWeight(double beta);
+//   void SetConcavity(double concavity);
+//   void SetNClusters(long nClusters);
+//   void SetNVerticesPerCH(long nVerticesPerCH);
+
+//   void SetPoints(Vec3Real points);
+//   void SetNPoints(long nPoints);
+//   void SetTriangles(Vec3Long triangles);
+//   void SetNTriangles(long nTriangles);
+
+//   void Compute();
+//   long GetNClusters();
+//   long GetNPointsCH(long c);
+//   long GetNTrianglesCH(long c);
+//   long GetCH(long c, Vec3Real points, Vec3Long triangles);
+// };
+
+// [Prefix="VHACD::"]
+// interface VHACD {
+//   void VHACD();
+//   boolean Compute(double[] points, long stridePoints, long nPoints, long[] triangles, long strideTriangles, long nTriangles, [Const, Ref]Parameters params);
+//   unsigned short GetNConvexHulls();
+//   void GetConvexHull(unsigned short index, [Ref]ConvexHull ch);
+//   void Cancel();
+//   void Clean();
+//   void Release();
+// };
+
+// [Prefix="VHACD::IVHACD::"]
+// interface Parameters {
+//   void Parameters();
+//     attribute double m_concavity;
+//     attribute double m_alpha;
+//     attribute double m_beta;
+//     attribute double m_gamma;
+//     attribute double m_minVolumePerCH;
+//     attribute unsigned short m_resolution;
+//     attribute unsigned short m_maxNumVerticesPerCH;
+//     attribute long m_depth;
+//     attribute long m_planeDownsampling;
+//     attribute long m_convexhullDownsampling;
+//     attribute long m_pca;
+//     attribute long m_mode;
+//     attribute long m_convexhullApproximation;
+//     attribute long m_oclAcceleration;
+// };
+
+// [Prefix="VHACD::IVHACD::"]
+// interface ConvexHull {
+//   void ConvexHull();
+//   readonly attribute double[] m_points;
+//   readonly attribute long[] m_triangles;
+//   readonly attribute unsigned short m_nPoints;
+//   readonly attribute unsigned short m_nTriangles;
+// };
 
 // Soft bodies
 
