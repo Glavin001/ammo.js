@@ -4,11 +4,19 @@
 #include "BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h"
 #include "BulletCollision/CollisionShapes/btShapeHull.h"
 #include "BulletDynamics/Character/btKinematicCharacterController.h"
+#include "BulletDynamics/Dynamics/btDynamicsWorld.h"
 #include "BulletSoftBody/btDefaultSoftBodySolver.h"
 #include "BulletSoftBody/btSoftBody.h"
 #include "BulletSoftBody/btSoftBodyHelpers.h"
 #include "BulletSoftBody/btSoftBodyRigidBodyCollisionConfiguration.h"
 #include "BulletSoftBody/btSoftRigidDynamicsWorld.h"
+
+#include <sstream>
+
+#include "HACD/hacdHACD.h"
+// #include "VHACD/public/VHACD.h"
+// #include "VHACD/inc/vhacdTimer.h"
+// #include "VHACD/inc/vhacdVHACD.h"
 
 //Web IDL doesn't seem to support C++ templates so this is the best we can do
 //https://stackoverflow.com/questions/42517010/is-there-a-way-to-create-webidl-bindings-for-c-templated-types#comment82966925_42517010
@@ -18,3 +26,15 @@ typedef btAlignedObjectArray<int> btIntArray;
 typedef btAlignedObjectArray<btIndexedMesh> btIndexedMeshArray;
 typedef btAlignedObjectArray<const btCollisionObject*> btConstCollisionObjectArray;
 typedef btAlignedObjectArray<btScalar> btScalarArray;
+
+typedef HACD::Vec3<HACD::Real> Vec3Real;
+typedef HACD::Vec3<long> Vec3Long;
+
+// Compatibility functions
+struct btCompat
+{
+    // Web IDL does not support special function pointers, only void*
+    static void setInternalTickCallback(btDynamicsWorld *world, void *cb, void *worldUserInfo = 0, bool isPreTick = false) {
+        world->setInternalTickCallback((btInternalTickCallback)cb, worldUserInfo, isPreTick);
+    }
+};

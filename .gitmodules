@@ -1,0 +1,3 @@
+[submodule "bullet"]
+	path = bullet
+	url = https://github.com/Glavin001/bullet3.git
