@@ -3,6 +3,7 @@
   "version": "0.0.2",
   "description": "Direct port of the Bullet physics engine to JavaScript using Emscripten",
   "main": "builds/ammo.js",
+  "types": "builds/ammo.d.ts",
   "repository": {
     "type": "git",
     "url": "git://github.com/kripken/ammo.js.git"
@@ -14,11 +15,16 @@
   "homepage": "https://github.com/kripken/ammo.js",
   "devDependencies": {
     "ava": "^3.11.0",
-    "http-server": "^0.12.3"
+    "http-server": "^0.12.3",
+    "webidl2ts": "github:glavin001/webidl2ts"
   },
   "scripts": {
+    "build": "docker-compose up --build && npm run types",
     "test": "npm run test-js && npm run test-wasm",
     "test-js": "AMMO_PATH=builds/ammo.js ava",
-    "test-wasm": "AMMO_PATH=builds/ammo.wasm.js ava"
+    "test-wasm": "AMMO_PATH=builds/ammo.wasm.js ava",
+    "types": "npm run types:module && npm run types:ambient",
+    "types:module": "webidl2ts -i ./ammo.idl -o ./builds/ammo.d.ts -ed -n Ammo",
+    "types:ambient": "mkdir -p ./builds/ambient/ && webidl2ts -i ./ammo.idl -o ./builds/ambient/ammo.d.ts -e -n Ammo"
   }
 }

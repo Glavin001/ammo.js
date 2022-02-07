@@ -1273,7 +1273,7 @@ interface btHingeConstraint {
   void setMotorTargetVelocity(float motorTargetVelocity);
   // void setMotorTarget([Const,Ref] btQuaternion qAinB, float dt);
   void setMotorTarget(float targetAngle, float dt);
-  void setLimit(float low, float high, float softness, float biasFactor, optional float relaxationFactor);
+  void setLimit(float low, float high, optional float softness, optional float biasFactor, optional float relaxationFactor);
   float getLimitSoftness();
   float getLimitBiasFactor();
   float getLimitRelaxationFactor();
@@ -2003,44 +2003,44 @@ interface HACD {
   long GetCH(long c, Vec3Real points, Vec3Long triangles);
 };
 
-// [Prefix="VHACD::"]
-// interface VHACD {
-//   void VHACD();
-//   boolean Compute(double[] points, long stridePoints, long nPoints, long[] triangles, long strideTriangles, long nTriangles, [Const, Ref]Parameters params);
-//   unsigned short GetNConvexHulls();
-//   void GetConvexHull(unsigned short index, [Ref]ConvexHull ch);
-//   void Cancel();
-//   void Clean();
-//   void Release();
-// };
+[Prefix="VHACD::"]
+interface VHACD {
+  void VHACD();
+  boolean Compute(double[] points, long stridePoints, long nPoints, long[] triangles, long strideTriangles, long nTriangles, [Const, Ref]Parameters params);
+  unsigned short GetNConvexHulls();
+  void GetConvexHull(unsigned short index, [Ref]ConvexHull ch);
+  void Cancel();
+  void Clean();
+  void Release();
+};
 
-// [Prefix="VHACD::IVHACD::"]
-// interface Parameters {
-//   void Parameters();
-//     attribute double m_concavity;
-//     attribute double m_alpha;
-//     attribute double m_beta;
-//     attribute double m_gamma;
-//     attribute double m_minVolumePerCH;
-//     attribute unsigned short m_resolution;
-//     attribute unsigned short m_maxNumVerticesPerCH;
-//     attribute long m_depth;
-//     attribute long m_planeDownsampling;
-//     attribute long m_convexhullDownsampling;
-//     attribute long m_pca;
-//     attribute long m_mode;
-//     attribute long m_convexhullApproximation;
-//     attribute long m_oclAcceleration;
-// };
+[Prefix="VHACD::IVHACD::"]
+interface Parameters {
+  void Parameters();
+    attribute double m_concavity;
+    attribute double m_alpha;
+    attribute double m_beta;
+    attribute double m_gamma;
+    attribute double m_minVolumePerCH;
+    attribute unsigned short m_resolution;
+    attribute unsigned short m_maxNumVerticesPerCH;
+    attribute long m_depth;
+    attribute long m_planeDownsampling;
+    attribute long m_convexhullDownsampling;
+    attribute long m_pca;
+    attribute long m_mode;
+    attribute long m_convexhullApproximation;
+    attribute long m_oclAcceleration;
+};
 
-// [Prefix="VHACD::IVHACD::"]
-// interface ConvexHull {
-//   void ConvexHull();
-//   readonly attribute double[] m_points;
-//   readonly attribute long[] m_triangles;
-//   readonly attribute unsigned short m_nPoints;
-//   readonly attribute unsigned short m_nTriangles;
-// };
+[Prefix="VHACD::IVHACD::"]
+interface ConvexHull {
+  void ConvexHull();
+  readonly attribute double[] m_points;
+  readonly attribute long[] m_triangles;
+  readonly attribute unsigned short m_nPoints;
+  readonly attribute unsigned short m_nTriangles;
+};
 
 // Soft bodies
 

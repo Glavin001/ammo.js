@@ -15,7 +15,7 @@ set(BULLET_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/bullet/src/)
 set(BULLET_EXTRAS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/bullet/Extras/)
 
 
-set(BULLET_TARGETS BulletCollision BulletDynamics BulletSoftBody LinearMath HACD)
+set(BULLET_TARGETS BulletCollision BulletDynamics BulletSoftBody LinearMath HACD BulletRobotics)
 foreach(_TARGET ${BULLET_TARGETS})
   list(APPEND BULLET_LIBS $<TARGET_FILE:${_TARGET}>)
 endforeach()

@@ -5,4 +5,4 @@ services:
     build: .
     volumes:
       - .:/code
-    command: bash -c "rm -f builds/ammo.* && cmake -B builds -DCLOSURE=1 -DBUILD_HACD_EXTRA=ON -DBUILD_EXTRAS=ON && cmake --build builds"
+    command: bash -c "rm -f builds/ammo.* && cmake -B builds -DCLOSURE=1 -DBUILD_HACD_EXTRA=ON -DENABLE_VHACD=ON -DBUILD_BULLET_ROBOTICS_EXTRA=ON -DBUILD_EXTRAS=ON && cmake --build builds"
